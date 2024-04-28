@@ -8,43 +8,33 @@ using Autodesk.Revit.UI;
 
 namespace AddMaterials
 {
-  [Transaction( TransactionMode.ReadOnly )]
-  public class FillPatternBenchmarkCommand 
-    : IExternalCommand
-  {
-    public Result Execute( 
-      ExternalCommandData commandData,
-      ref string message,
-      ElementSet elements )
+    [Transaction(TransactionMode.Manual)]
+    [Regeneration(RegenerationOption.Manual)]
+    public class FillPatternBenchmarkCommand : IExternalCommand
     {
-      var doc = commandData.Application
-        .ActiveUIDocument.Document;
+        public Result Execute(ExternalCommandData commandData, ref string message, ElementSet elements)
+        {
+            var doc = commandData.Application.ActiveUIDocument.Document;
 
-      var fillPatternElements 
-        = new FilteredElementCollector( doc )
-          .OfClass( typeof( FillPatternElement ) )
-          .OfType<FillPatternElement>()
-          .OrderBy( fp => fp.Name )
-          .ToList();
+            var fillPatternElements
+              = new FilteredElementCollector(doc)
+                .OfClass(typeof(FillPatternElement))
+                .OfType<FillPatternElement>()
+                .OrderBy(fp => fp.Name)
+                .ToList();
 
-      var fillPatterns 
-        = fillPatternElements.Select( 
-          fpe => fpe.GetFillPattern() );
+            var fillPatterns = fillPatternElements.Select(fpe => fpe.GetFillPattern());
 
-      FillPatternsViewModel fillPatternsViewModel 
-        = new FillPatternsViewModel( fillPatterns
-          .Select( x => new FillPatternViewModel( 
-            x ) ) );
+            FillPatternsViewModel fillPatternsViewModel = new FillPatternsViewModel(fillPatterns.Select(x => new FillPatternViewModel(x)));
 
-      FillPatternsView fillPatternsView 
-        = new FillPatternsView()
-      {
-        DataContext = fillPatternsViewModel
-      };
+            FillPatternsView fillPatternsView = new FillPatternsView()
+            {
+                DataContext = fillPatternsViewModel
+            };
 
-      fillPatternsView.ShowDialog();
+            fillPatternsView.ShowDialog();
 
-      return Result.Succeeded;
+            return Result.Succeeded;
+        }
     }
-  }
 }
